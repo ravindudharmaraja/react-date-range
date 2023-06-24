@@ -28,6 +28,7 @@ const defineds = {
 
 const staticRangeHandler = {
   range: {},
+  isOpen: false,
   isSelected(range) {
     const definedRange = this.range();
     return (
@@ -35,10 +36,13 @@ const staticRangeHandler = {
       isSameDay(range.endDate, definedRange.endDate)
     );
   },
+  toggleRange() {
+    this.isOpen = !this.isOpen;
+  },
 };
 
 export function createStaticRanges(ranges) {
-  return ranges.map(range => ({ ...staticRangeHandler, ...range }));
+  return ranges.map(range => ({ ...staticRangeHandler, ...range, isOpen: false }));
 }
 
 export const defaultStaticRanges = createStaticRanges([
@@ -56,7 +60,6 @@ export const defaultStaticRanges = createStaticRanges([
       endDate: defineds.endOfYesterday,
     }),
   },
-
   {
     label: 'This Week',
     range: () => ({
@@ -118,3 +121,28 @@ export const defaultInputRanges = [
     },
   },
 ];
+
+// Assuming you have a component to render each range with the following props: label, isSelected, toggleRange, isOpen
+const RangeComponent = ({ label, isSelected, toggleRange, isOpen }) => (
+  <div>
+    <button onClick={toggleRange}>{isOpen ? 'Close' : 'Open'}</button>
+    <span>{label}</span>
+    {isSelected && <span> (selected)</span>}
+    {isOpen && <span> (open)</span>}
+  </div>
+);
+
+// Render the date ranges
+const DateRangePicker = () => (
+  <div>
+    {defaultStaticRanges.map(range => (
+      <RangeComponent
+        key={range.label}
+        label={range.label}
+        isSelected={range.isSelected()}
+        toggleRange={range.toggleRange}
+        isOpen={range.isOpen}
+      />
+    ))}
+  </div>
+);
